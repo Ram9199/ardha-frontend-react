@@ -5,6 +5,7 @@ import BirthForm from './components/BirthForm';
 import ChartResults from './components/ChartResults';
 import LoadingSpinner from './components/LoadingSpinner';
 import Footer from './components/Footer';
+import config from './config';
 
 const AppContainer = styled.div`
   display: flex;
@@ -27,8 +28,9 @@ function App() {
       // Log the location data to help with troubleshooting
       console.log(`Calculating chart for ${formData.birthplace} at coordinates: ${formData.latitude}, ${formData.longitude}, timezone: ${formData.timezone}`);
       console.log(`Using astrology style: ${formData.astroStyle}`);
+      console.log(`Using API endpoint: ${config.API_BASE_URL}`);
       
-      const response = await fetch('/api/birth-chart', {
+      const response = await fetch(`${config.API_BASE_URL}/api/birth-chart`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,7 +49,9 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to calculate chart');
+        const errorText = await response.text();
+        console.error('API response error:', errorText);
+        throw new Error(`Server responded with status: ${response.status}. Details: ${errorText}`);
       }
 
       const data = await response.json();

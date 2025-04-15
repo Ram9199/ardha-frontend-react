@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import ChartWheel from './ChartWheel';
+import config from '../config';
 
 const ResultsCard = styled.div`
   background: var(--card-bg);
@@ -249,7 +250,7 @@ const ChartResults = ({ chartData, personData, onReset }) => {
   
   const handleDownloadPDF = async () => {
     try {
-      const response = await fetch('/api/generate-pdf', {
+      const response = await fetch(`${config.API_BASE_URL}/api/generate-pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -261,7 +262,9 @@ const ChartResults = ({ chartData, personData, onReset }) => {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to generate PDF');
+        const errorText = await response.text();
+        console.error('API response error:', errorText);
+        throw new Error(`Server responded with status: ${response.status}. Details: ${errorText}`);
       }
       
       const blob = await response.blob();
